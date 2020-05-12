@@ -1,8 +1,6 @@
 package com.khjxiaogu.encrypt;
 
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +29,8 @@ public class ImageEncrypt {
 		JFileChooser jfc = new JFileChooser(new File("./")); //$NON-NLS-1$
 		jfc.setAcceptAllFileFilterUsed(false);
 		jfc.setDialogTitle(Messages.getString("ImageEncrypt.select_file")); //$NON-NLS-1$
-		FileNameExtensionFilter restrict = new FileNameExtensionFilter(Messages.getString("ImageEncrypt.picture_file"), "jpg", "jpeg", "png", "bmp", "tiff"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+		FileNameExtensionFilter restrict = new FileNameExtensionFilter(Messages.getString("ImageEncrypt.picture_file"), //$NON-NLS-1$
+				"jpg", "jpeg", "png", "bmp", "tiff"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		jfc.addChoosableFileFilter(restrict);
 		if (jfc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
 			return;
@@ -40,13 +39,17 @@ public class ImageEncrypt {
 		int w = bi.getWidth();
 		int h = bi.getHeight();
 		BufferedImage bo = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-		ByteBuffer keybuff = ByteBuffer.allocateDirect(16);
-		int ivl = 0;
-		int ivc = 0;
-		int iva = 0;
+		//prepare image IOs
+		
+		int ivl = 0, ivc = 0, iva = 0;//line vectors
+		int[] ivt = new int[w];//column vectors
+		//vectors to keep encrypt result unreadable.
+	
 		ImageEncrypt.l.setText(Messages.getString("ImageEncrypt.encrypting")); //$NON-NLS-1$
 		PerlinNoise pn = new PerlinNoise(ImageEncrypt.je.getText());
-		int[] ivt = new int[w];
+		ByteBuffer keybuff = ByteBuffer.allocateDirect(16);
+		//initiate key generator.
+		
 		for (int i = 0; i < h; i++) {
 			int rgb = 0;
 			for (int j = 0; j < w; j++) {
@@ -55,7 +58,8 @@ public class ImageEncrypt {
 				int clr;
 				clr = bi.getRGB(j, i);
 				keybuff.clear();
-				keybuff.put((byte) 0);
+				keybuff.put((byte) 0);// generate a Perlin key, change factor of each function would greatly change
+										// encrypt/decrypt procedure
 				keybuff.put(pn.at(xd, yd, 1.1));
 				keybuff.put(pn.at(xd, yd, 2.2));
 				keybuff.put(pn.at(xd, yd, 3.3));
@@ -71,11 +75,9 @@ public class ImageEncrypt {
 				int key = keybuff.getInt(0);
 				int key3 = keybuff.getInt(2);
 				rgb = clr ^ key ^ key2 ^ key3 ^ ivl ^ ivc ^ iva ^ ivt[j];
-				ivt[j] = rgb;
-				ivl = rgb;
-				iva = (int) (((long) iva + (long) rgb) % 0xffffffff);
 				bo.setRGB(j, i, rgb);
-
+				ivt[j] =ivl = rgb;//update vectors.
+				iva = (int) (((long) iva + (long) rgb) % 0xffffffff);
 			}
 			iva = 0;
 			ivc = (int) (((long) ivc + (long) rgb) % 0xffffffff);
@@ -84,7 +86,8 @@ public class ImageEncrypt {
 		JFileChooser jfc2 = new JFileChooser(new File("./")); //$NON-NLS-1$
 		jfc2.setAcceptAllFileFilterUsed(false);
 		jfc2.setDialogTitle(Messages.getString("ImageEncrypt.save_picture")); //$NON-NLS-1$
-		FileNameExtensionFilter restrict2 = new FileNameExtensionFilter(Messages.getString("ImageEncrypt.picture_file"), "png", "bmp", "tiff"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		FileNameExtensionFilter restrict2 = new FileNameExtensionFilter(Messages.getString("ImageEncrypt.picture_file"), //$NON-NLS-1$
+				"png", "bmp", "tiff"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		jfc2.addChoosableFileFilter(restrict2);
 		if (jfc2.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
 			return;
@@ -101,7 +104,8 @@ public class ImageEncrypt {
 		JFileChooser jfc = new JFileChooser(new File("./")); //$NON-NLS-1$
 		jfc.setAcceptAllFileFilterUsed(false);
 		jfc.setDialogTitle(Messages.getString("ImageEncrypt.select_file")); //$NON-NLS-1$
-		FileNameExtensionFilter restrict = new FileNameExtensionFilter(Messages.getString("ImageEncrypt.picture_file"), "jpg", "jpeg", "png", "bmp", "tiff"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+		FileNameExtensionFilter restrict = new FileNameExtensionFilter(Messages.getString("ImageEncrypt.picture_file"), //$NON-NLS-1$
+				"jpg", "jpeg", "png", "bmp", "tiff"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		jfc.addChoosableFileFilter(restrict);
 		if (jfc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
 			return;
@@ -110,11 +114,17 @@ public class ImageEncrypt {
 		int w = bi.getWidth();
 		int h = bi.getHeight();
 		BufferedImage bo = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-		ByteBuffer keybuff = ByteBuffer.allocateDirect(16);
-		int ivl = 0,ivc = 0,iva = 0;//行向量，行首向量，总向量
+		//prepare image IOs
+		
+		int ivl = 0, ivc = 0, iva = 0;//line vectors
+		int[] ivt = new int[w];//column vectors
+		//vectors to keep encrypt result unreadable.
+	
 		ImageEncrypt.l.setText(Messages.getString("ImageEncrypt.decrypting")); //$NON-NLS-1$
 		PerlinNoise pn = new PerlinNoise(ImageEncrypt.je.getText());
-		int[] ivt = new int[w];//列向量
+		ByteBuffer keybuff = ByteBuffer.allocateDirect(16);
+		//initiate key generator.
+		
 		for (int i = 0; i < h; i++) {
 			int clr = 0;
 			for (int j = 0; j < w; j++) {
@@ -123,7 +133,8 @@ public class ImageEncrypt {
 				clr = bi.getRGB(j, i);
 				keybuff.clear();
 				keybuff.put((byte) 0);
-				keybuff.put(pn.at(xd, yd, 1.1));
+				keybuff.put(pn.at(xd, yd, 1.1));// generate a Perlin key, change factor of each function would greatly
+												// change encrypt/decrypt procedure
 				keybuff.put(pn.at(xd, yd, 2.2));
 				keybuff.put(pn.at(xd, yd, 3.3));
 				keybuff.put((byte) 0);
@@ -137,11 +148,10 @@ public class ImageEncrypt {
 				keybuff.put(pn.at(xd, yd, 9.9));
 				int key = keybuff.getInt(0);
 				int key3 = keybuff.getInt(2);
-				int rgb = clr ^ key ^ key2 ^ key3 ^ ivl ^ ivc ^ iva ^ ivt[j];
-				ivt[j] = clr;
-				ivl = clr;
-				iva = (int) (((long) iva + (long) clr) % 0xffffffff);
+				int rgb = clr ^ key ^ key2 ^ key3 ^ ivl ^ ivc ^ iva ^ ivt[j];//main expression
 				bo.setRGB(j, i, rgb);
+				ivl =ivt[j] = clr;//update vectors.
+				iva = (int) (((long) iva + (long) clr) % 0xffffffff);
 			}
 			iva = 0;
 			ivc = (int) (((long) ivc + (long) clr) % 0xffffffff);
@@ -150,7 +160,8 @@ public class ImageEncrypt {
 		JFileChooser jfc2 = new JFileChooser(new File("./")); //$NON-NLS-1$
 		jfc2.setAcceptAllFileFilterUsed(false);
 		jfc2.setDialogTitle(Messages.getString("ImageEncrypt.save_picture")); //$NON-NLS-1$
-		FileNameExtensionFilter restrict2 = new FileNameExtensionFilter(Messages.getString("ImageEncrypt.picture_file"), "jpg", "jpeg", "png", "bmp", "tiff"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+		FileNameExtensionFilter restrict2 = new FileNameExtensionFilter(Messages.getString("ImageEncrypt.picture_file"), //$NON-NLS-1$
+				"jpg", "jpeg", "png", "bmp", "tiff"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		jfc2.addChoosableFileFilter(restrict2);
 		if (jfc2.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
 			return;
@@ -165,7 +176,7 @@ public class ImageEncrypt {
 
 	public strictfp static void main(String[] args) throws IOException {
 		JFrame f = new JFrame(Messages.getString("ImageEncrypt.title")); //$NON-NLS-1$
-		f.setLayout(new BoxLayout(f.getContentPane(),BoxLayout.Y_AXIS));
+		f.setLayout(new BoxLayout(f.getContentPane(), BoxLayout.Y_AXIS));
 		f.setSize(400, 400);
 		f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		f.setResizable(false);
@@ -192,7 +203,7 @@ public class ImageEncrypt {
 		});
 		JPanel p = new JPanel();
 		JPanel p2 = new JPanel();
-		JPanel text=new JPanel();
+		JPanel text = new JPanel();
 		p.add(button1);
 		p.add(button2);
 		p2.add(new JLabel(Messages.getString("ImageEncrypt.password"))); //$NON-NLS-1$
@@ -200,7 +211,7 @@ public class ImageEncrypt {
 		p2.setSize(400, p2.getWidth());
 		f.add(p);
 		f.add(p2);
-		l.setMaximumSize(new Dimension(Integer.MAX_VALUE, l.getMinimumSize().height));
+		ImageEncrypt.l.setMaximumSize(new Dimension(Integer.MAX_VALUE, ImageEncrypt.l.getMinimumSize().height));
 		f.add(ImageEncrypt.l);
 		f.add(Box.createVerticalGlue());
 		text.add(new JLabel(Messages.getString("ImageEncrypt.hint"))); //$NON-NLS-1$
