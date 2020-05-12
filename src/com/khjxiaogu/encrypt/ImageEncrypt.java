@@ -28,14 +28,14 @@ public class ImageEncrypt {
 	static JLabel l;
 
 	private strictfp static void encrypt() throws IOException {
-		JFileChooser jfc = new JFileChooser(new File("./"));
+		JFileChooser jfc = new JFileChooser(new File("./")); //$NON-NLS-1$
 		jfc.setAcceptAllFileFilterUsed(false);
-		jfc.setDialogTitle("选择图片文件");
-		FileNameExtensionFilter restrict = new FileNameExtensionFilter("图片文件", "jpg", "jpeg", "png", "bmp", "tiff");
+		jfc.setDialogTitle(Messages.getString("ImageEncrypt.select_file")); //$NON-NLS-1$
+		FileNameExtensionFilter restrict = new FileNameExtensionFilter(Messages.getString("ImageEncrypt.picture_file"), "jpg", "jpeg", "png", "bmp", "tiff"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 		jfc.addChoosableFileFilter(restrict);
 		if (jfc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
 			return;
-		ImageEncrypt.l.setText("读取中...");
+		ImageEncrypt.l.setText(Messages.getString("ImageEncrypt.loading")); //$NON-NLS-1$
 		BufferedImage bi = ImageIO.read(jfc.getSelectedFile());
 		int w = bi.getWidth();
 		int h = bi.getHeight();
@@ -44,7 +44,7 @@ public class ImageEncrypt {
 		int ivl = 0;
 		int ivc = 0;
 		int iva = 0;
-		ImageEncrypt.l.setText("加密中...");
+		ImageEncrypt.l.setText(Messages.getString("ImageEncrypt.encrypting")); //$NON-NLS-1$
 		PerlinNoise pn = new PerlinNoise(ImageEncrypt.je.getText());
 		int[] ivt = new int[w];
 		for (int i = 0; i < h; i++) {
@@ -80,17 +80,17 @@ public class ImageEncrypt {
 			iva = 0;
 			ivc = (int) (((long) ivc + (long) rgb) % 0xffffffff);
 		}
-		ImageEncrypt.l.setText("完成！");
-		JFileChooser jfc2 = new JFileChooser(new File("./"));
+		ImageEncrypt.l.setText(Messages.getString("ImageEncrypt.complete")); //$NON-NLS-1$
+		JFileChooser jfc2 = new JFileChooser(new File("./")); //$NON-NLS-1$
 		jfc2.setAcceptAllFileFilterUsed(false);
-		jfc2.setDialogTitle("保存加密的图片文件");
-		FileNameExtensionFilter restrict2 = new FileNameExtensionFilter("图片文件", "png", "bmp", "tiff");
+		jfc2.setDialogTitle(Messages.getString("ImageEncrypt.save_picture")); //$NON-NLS-1$
+		FileNameExtensionFilter restrict2 = new FileNameExtensionFilter(Messages.getString("ImageEncrypt.picture_file"), "png", "bmp", "tiff"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		jfc2.addChoosableFileFilter(restrict2);
 		if (jfc2.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
 			return;
 		File f = jfc2.getSelectedFile();
 		int i = f.getName().lastIndexOf('.');
-		String extension = "";
+		String extension = ""; //$NON-NLS-1$
 		if (i > 0) {
 			extension = f.getName().substring(i + 1);
 		}
@@ -98,21 +98,21 @@ public class ImageEncrypt {
 	}
 
 	private strictfp static void decrypt() throws IOException {
-		JFileChooser jfc = new JFileChooser(new File("./"));
+		JFileChooser jfc = new JFileChooser(new File("./")); //$NON-NLS-1$
 		jfc.setAcceptAllFileFilterUsed(false);
-		jfc.setDialogTitle("选择图片文件");
-		FileNameExtensionFilter restrict = new FileNameExtensionFilter("图片文件", "jpg", "jpeg", "png", "bmp", "tiff");
+		jfc.setDialogTitle(Messages.getString("ImageEncrypt.select_file")); //$NON-NLS-1$
+		FileNameExtensionFilter restrict = new FileNameExtensionFilter(Messages.getString("ImageEncrypt.picture_file"), "jpg", "jpeg", "png", "bmp", "tiff"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 		jfc.addChoosableFileFilter(restrict);
 		if (jfc.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
 			return;
-		ImageEncrypt.l.setText("读取中...");
+		ImageEncrypt.l.setText(Messages.getString("ImageEncrypt.loading")); //$NON-NLS-1$
 		BufferedImage bi = ImageIO.read(jfc.getSelectedFile());
 		int w = bi.getWidth();
 		int h = bi.getHeight();
 		BufferedImage bo = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 		ByteBuffer keybuff = ByteBuffer.allocateDirect(16);
 		int ivl = 0,ivc = 0,iva = 0;//行向量，行首向量，总向量
-		ImageEncrypt.l.setText("加密中...");
+		ImageEncrypt.l.setText(Messages.getString("ImageEncrypt.decrypting")); //$NON-NLS-1$
 		PerlinNoise pn = new PerlinNoise(ImageEncrypt.je.getText());
 		int[] ivt = new int[w];//列向量
 		for (int i = 0; i < h; i++) {
@@ -146,17 +146,17 @@ public class ImageEncrypt {
 			iva = 0;
 			ivc = (int) (((long) ivc + (long) clr) % 0xffffffff);
 		}
-		ImageEncrypt.l.setText("完成！");
-		JFileChooser jfc2 = new JFileChooser(new File("./"));
+		ImageEncrypt.l.setText(Messages.getString("ImageEncrypt.complete")); //$NON-NLS-1$
+		JFileChooser jfc2 = new JFileChooser(new File("./")); //$NON-NLS-1$
 		jfc2.setAcceptAllFileFilterUsed(false);
-		jfc2.setDialogTitle("保存加密的图片文件");
-		FileNameExtensionFilter restrict2 = new FileNameExtensionFilter("图片文件", "jpg", "jpeg", "png", "bmp", "tiff");
+		jfc2.setDialogTitle(Messages.getString("ImageEncrypt.save_picture")); //$NON-NLS-1$
+		FileNameExtensionFilter restrict2 = new FileNameExtensionFilter(Messages.getString("ImageEncrypt.picture_file"), "jpg", "jpeg", "png", "bmp", "tiff"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
 		jfc2.addChoosableFileFilter(restrict2);
 		if (jfc2.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
 			return;
 		File f = jfc2.getSelectedFile();
 		int i = f.getName().lastIndexOf('.');
-		String extension = "";
+		String extension = ""; //$NON-NLS-1$
 		if (i > 0) {
 			extension = f.getName().substring(i + 1);
 		}
@@ -164,15 +164,15 @@ public class ImageEncrypt {
 	}
 
 	public strictfp static void main(String[] args) throws IOException {
-		JFrame f = new JFrame("简易图片加密");
+		JFrame f = new JFrame(Messages.getString("ImageEncrypt.title")); //$NON-NLS-1$
 		f.setLayout(new BoxLayout(f.getContentPane(),BoxLayout.Y_AXIS));
 		f.setSize(400, 400);
 		f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		f.setResizable(false);
-		JButton button1 = new JButton("加密图片");
-		JButton button2 = new JButton("解密图片");
+		JButton button1 = new JButton(Messages.getString("ImageEncrypt.btnenc")); //$NON-NLS-1$
+		JButton button2 = new JButton(Messages.getString("ImageEncrypt.btndec")); //$NON-NLS-1$
 		ImageEncrypt.je = new JTextField(30);
-		ImageEncrypt.l = new JLabel("请选择操作！");
+		ImageEncrypt.l = new JLabel(Messages.getString("ImageEncrypt.selectop")); //$NON-NLS-1$
 
 		button1.addActionListener(ev -> {
 			try {
@@ -195,7 +195,7 @@ public class ImageEncrypt {
 		JPanel text=new JPanel();
 		p.add(button1);
 		p.add(button2);
-		p2.add(new JLabel("密码："));
+		p2.add(new JLabel(Messages.getString("ImageEncrypt.password"))); //$NON-NLS-1$
 		p2.add(ImageEncrypt.je);
 		p2.setSize(400, p2.getWidth());
 		f.add(p);
@@ -203,10 +203,10 @@ public class ImageEncrypt {
 		l.setMaximumSize(new Dimension(Integer.MAX_VALUE, l.getMinimumSize().height));
 		f.add(ImageEncrypt.l);
 		f.add(Box.createVerticalGlue());
-		text.add(new JLabel("提示：仅供娱乐，不保证加密安全。请勿用于生产用途。"));
-		text.add(new JLabel("加密后的图片请务必原图发送，否则解密会出现偏差。"));
-		text.add(new JLabel("作者：khj小骨(Github @khjxiaogu)，联系方式：khjxiaogu@qq.com"));
-		text.add(new JLabel("Copyright (C) 2020 khjxiaogu,all rights reserved."));
+		text.add(new JLabel(Messages.getString("ImageEncrypt.hint"))); //$NON-NLS-1$
+		text.add(new JLabel(Messages.getString("ImageEncrypt.warn"))); //$NON-NLS-1$
+		text.add(new JLabel(Messages.getString("ImageEncrypt.author"))); //$NON-NLS-1$
+		text.add(new JLabel("Copyright (C) 2020 khjxiaogu,all rights reserved.")); //$NON-NLS-1$
 		text.setMaximumSize(new Dimension(Integer.MAX_VALUE, text.getMaximumSize().height));
 		text.setMinimumSize(new Dimension(text.getMinimumSize().width, text.getMaximumSize().height));
 		f.add(text);
