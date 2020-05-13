@@ -1,5 +1,4 @@
 /bin/
 /target/
-/enc*
-/input*
-/output*
+/*.png
+/*.jpg
