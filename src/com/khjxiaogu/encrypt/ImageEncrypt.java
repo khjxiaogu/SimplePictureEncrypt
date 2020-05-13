@@ -17,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
@@ -42,13 +43,14 @@ public class ImageEncrypt {
 		int h = bi.getHeight();
 		BufferedImage bo = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 		//prepare image IOs
+		PerlinNoise pn = new PerlinNoise(ImageEncrypt.je.getText());
 		
-		int ivl = 0, ivc = 0, iva = 0;//line vectors
+		int ivl = 120, ivc = 100, iva = 200;//line vectors
 		int[] ivt = new int[w];//column vectors
 		//vectors to keep encrypt result unreadable.
 	
 		ImageEncrypt.l.setText(Messages.getString("ImageEncrypt.encrypting")); //$NON-NLS-1$
-		PerlinNoise pn = new PerlinNoise(ImageEncrypt.je.getText());
+		
 		ByteBuffer keybuff = ByteBuffer.allocateDirect(16);
 		//initiate key generator.
 		
@@ -69,19 +71,20 @@ public class ImageEncrypt {
 				keybuff.put(pn.at(xd, yd, 4.4));
 				keybuff.put(pn.at(xd, yd, 5.5));
 				keybuff.put(pn.at(xd, yd, 6.6));
-				int key2 = keybuff.getInt(1);
+				int key2 = keybuff.getInt(4);
 				keybuff.put((byte) 0);
 				keybuff.put(pn.at(xd, yd, 7.7));
 				keybuff.put(pn.at(xd, yd, 8.8));
 				keybuff.put(pn.at(xd, yd, 9.9));
 				int key = keybuff.getInt(0);
-				int key3 = keybuff.getInt(2);
-				rgb = clr ^ key ^ key2 ^ key3 ^ ivl ^ ivc ^ iva ^ ivt[j];
+				int key3 = keybuff.getInt(8);
+				rgb = (clr^ ivl ^ ivc ^ iva ^ ivt[j])^(key ^ key2 ^ key3);
 				bo.setRGB(j, i, rgb);
-				ivt[j] =ivl = rgb;//update vectors.
+				ivl ^= rgb;//update vectors.
+				ivt[j] ^=(int) (((long) ivt[j] + (long) rgb) % 0xffffffff);
 				iva = (int) (((long) iva + (long) rgb) % 0xffffffff);
 			}
-			iva = 0;
+			//iva = 0;
 			ivc = (int) (((long) ivc + (long) rgb) % 0xffffffff);
 		}
 		ImageEncrypt.l.setText(Messages.getString("ImageEncrypt.complete")); //$NON-NLS-1$
@@ -118,7 +121,7 @@ public class ImageEncrypt {
 		BufferedImage bo = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 		//prepare image IOs
 		
-		int ivl = 0, ivc = 0, iva = 0;//line vectors
+		int ivl = 120, ivc = 100, iva = 200;//line vectors
 		int[] ivt = new int[w];//column vectors
 		//vectors to keep encrypt result unreadable.
 	
@@ -126,7 +129,6 @@ public class ImageEncrypt {
 		PerlinNoise pn = new PerlinNoise(ImageEncrypt.je.getText());
 		ByteBuffer keybuff = ByteBuffer.allocateDirect(16);
 		//initiate key generator.
-		
 		for (int i = 0; i < h; i++) {
 			int clr = 0;
 			for (int j = 0; j < w; j++) {
@@ -143,19 +145,21 @@ public class ImageEncrypt {
 				keybuff.put(pn.at(xd, yd, 4.4));
 				keybuff.put(pn.at(xd, yd, 5.5));
 				keybuff.put(pn.at(xd, yd, 6.6));
-				int key2 = keybuff.getInt(1);
+				int key2 = keybuff.getInt(4);
 				keybuff.put((byte) 0);
 				keybuff.put(pn.at(xd, yd, 7.7));
 				keybuff.put(pn.at(xd, yd, 8.8));
 				keybuff.put(pn.at(xd, yd, 9.9));
 				int key = keybuff.getInt(0);
-				int key3 = keybuff.getInt(2);
-				int rgb = clr ^ key ^ key2 ^ key3 ^ ivl ^ ivc ^ iva ^ ivt[j];//main expression
+				int key3 = keybuff.getInt(8);
+				int rgb = (clr^ ivl ^ ivc ^ iva ^ ivt[j])^(key ^ key2 ^ key3);//main expression
 				bo.setRGB(j, i, rgb);
-				ivl =ivt[j] = clr;//update vectors.
+				ivl  ^= clr;//update vectors.
+				//ivt[j] ^= clr;
+				ivt[j] ^=(int) (((long) ivt[j] + (long) clr) % 0xffffffff);
 				iva = (int) (((long) iva + (long) clr) % 0xffffffff);
 			}
-			iva = 0;
+			//iva = 0;
 			ivc = (int) (((long) ivc + (long) clr) % 0xffffffff);
 		}
 		ImageEncrypt.l.setText(Messages.getString("ImageEncrypt.complete")); //$NON-NLS-1$
@@ -175,7 +179,6 @@ public class ImageEncrypt {
 		}
 		ImageIO.write(bo, extension, f);
 	}
-
 	public strictfp static void main(String[] args) throws IOException {
 		JFrame f = new JFrame(Messages.getString("ImageEncrypt.title")); //$NON-NLS-1$
 		f.setLayout(new BoxLayout(f.getContentPane(), BoxLayout.Y_AXIS));
@@ -231,7 +234,6 @@ public class ImageEncrypt {
 
 class PerlinNoise {
 	Random noiseRandom;
-
 	public PerlinNoise() {
 		noiseRandom = new Random();
 		PerlinNoise.shuffleArray(permutation, noiseRandom);
