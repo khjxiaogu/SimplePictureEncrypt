@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -25,7 +26,7 @@ public class ImageEncrypt {
 	static JTextField je;
 	static JLabel l;
 
-	private strictfp static void encrypt() throws IOException {
+	private strictfp static void encrypt() throws IOException, NoSuchAlgorithmException {
 		JFileChooser jfc = new JFileChooser(new File("./")); //$NON-NLS-1$
 		jfc.setAcceptAllFileFilterUsed(false);
 		jfc.setDialogTitle(Messages.getString("ImageEncrypt.select_file")); //$NON-NLS-1$
@@ -100,7 +101,7 @@ public class ImageEncrypt {
 		ImageIO.write(bo, extension, f);
 	}
 
-	private strictfp static void decrypt() throws IOException {
+	private strictfp static void decrypt() throws IOException, NoSuchAlgorithmException {
 		JFileChooser jfc = new JFileChooser(new File("./")); //$NON-NLS-1$
 		jfc.setAcceptAllFileFilterUsed(false);
 		jfc.setDialogTitle(Messages.getString("ImageEncrypt.select_file")); //$NON-NLS-1$
@@ -188,7 +189,7 @@ public class ImageEncrypt {
 		button1.addActionListener(ev -> {
 			try {
 				ImageEncrypt.encrypt();
-			} catch (IOException e) {
+			} catch (IOException | NoSuchAlgorithmException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -196,7 +197,7 @@ public class ImageEncrypt {
 		button2.addActionListener(ev -> {
 			try {
 				ImageEncrypt.decrypt();
-			} catch (IOException e) {
+			} catch (IOException | NoSuchAlgorithmException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -248,8 +249,10 @@ class PerlinNoise {
 		;
 	}
 
-	public PerlinNoise(String seed) {
-		noiseRandom = new Random(PerlinNoise.stringToSeed(seed));
+	public PerlinNoise(String seed) throws NoSuchAlgorithmException {
+		SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");  
+        secureRandom.setSeed(seed.getBytes());  
+		noiseRandom =secureRandom;
 		PerlinNoise.shuffleArray(permutation, noiseRandom);
 		for (int i = 0; i < 256; i++) {
 			p[256 + i] = p[i] = permutation[i];
