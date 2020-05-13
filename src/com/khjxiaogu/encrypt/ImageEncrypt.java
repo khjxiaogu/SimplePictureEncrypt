@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Random;
@@ -251,7 +252,7 @@ class PerlinNoise {
 
 	public PerlinNoise(String seed) throws NoSuchAlgorithmException {
 		SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");  
-        secureRandom.setSeed(seed.getBytes());  
+        secureRandom.setSeed(seed.getBytes(StandardCharsets.UTF_8));  
 		noiseRandom =secureRandom;
 		PerlinNoise.shuffleArray(permutation, noiseRandom);
 		for (int i = 0; i < 256; i++) {
